@@ -13,7 +13,6 @@ import org.jetbrains.reflekt.util.Util.REFLEKT_META_FILE_OPTION_INFO
 import org.jetbrains.reflekt.util.Util.REFLEKT_META_FILE_PATH
 import org.jetbrains.reflekt.util.Util.SAVE_METADATA_OPTION_INFO
 import org.jetbrains.reflekt.util.Util.VERSION
-import org.jetbrains.reflekt.util.file.extractAllFiles
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -35,7 +34,7 @@ class ReflektSubPlugin : KotlinCompilerPluginSupportPlugin {
 
         val reflektMetaFiles: MutableSet<File> = HashSet()
         project.configurations.forEach {
-            reflektMetaFiles.addAll(getReflektMetaFiles(getJarFilesToIntrospect(it, extension)))
+            reflektMetaFiles.addAll(project.getReflektMetaFiles(getJarFilesToIntrospect(it, extension)))
         }
         val reflektMetaFilesOptions = reflektMetaFiles.map { SubpluginOption(key = REFLEKT_META_FILE_OPTION_INFO.name, value = it.absolutePath) }
         val dependencyJars = project.configurations.first { it.name == "compileClasspath" }
@@ -85,10 +84,11 @@ class ReflektSubPlugin : KotlinCompilerPluginSupportPlugin {
         version = VERSION,
     )
 
-    private fun getReflektMetaFile(jarFile: File) =
-        jarFile.extractAllFiles().find { it.name == reflektMetaFile } ?: error("Jar file ${jarFile.absolutePath} does not have $reflektMetaFile file!")
+    private fun Project.getReflektMetaFile(jarFile: File): File =
+        zipTree(jarFile).files.find { it.name == reflektMetaFile }
+            ?: error("Jar file ${jarFile.absolutePath} does not have $reflektMetaFile file!")
 
-    private fun getReflektMetaFiles(jarFiles: Set<File>): List<File> {
+    private fun Project.getReflektMetaFiles(jarFiles: Set<File>): List<File> {
         val files: MutableList<File> = ArrayList()
         jarFiles.forEach { jar ->
             getLibJarWithoutSources(jar)?.let {

@@ -24,7 +24,7 @@ and by custom user condition via an extended DSL.
 The first one will be called `Reflekt`, and the second `SmartReflekt`.
 
 **Restrictions**. Reflekt analyses only `.kt` files (in the project and in the libraries); uses
-Kotlin `1.5.30`. Reflekt does not currently support incremental compilation.
+Kotlin `1.5.31`. Reflekt does not currently support incremental compilation.
 
 **Note**, we use [Intermediate Representation](https://kotlinlang.org/docs/whatsnew14.html#unified-backends-and-extensibility) of code in this plugin.
 It means, that Reflekt can be used for all available platforms: JVM, Native and JavaScript.
@@ -51,10 +51,10 @@ add the following lines in the `plugins` section:
 ```kotlin
 plugins {
     // Version of Kotlin should be 1.5.0+ that supports IR backend
-    kotlin("jvm") version "1.5.30" apply true
+    kotlin("jvm") version "1.5.31" apply true
 
     // Please, use the same version with the Kotlin version in your project
-    id("org.jetbrains.reflekt") version "1.5.30" apply true
+    id("org.jetbrains.reflekt") version "1.5.31" apply true
 
     // Necessary only for this example, for Kotless library
     id("io.kotless") version "0.1.6" apply true
@@ -90,7 +90,7 @@ the following lines in the `dependencies` section:
 ```kotlin
 dependencies {
     // The version here and the version in the plugins sections should be equal
-    implementation("org.jetbrains.reflekt", "reflekt-dsl", "1.5.30")
+    implementation("org.jetbrains.reflekt", "reflekt-dsl", "1.5.31")
 
     // Necessary for this example
     compileOnly("io.kotless", "kotless-lang", "0.1.6")
@@ -144,11 +144,11 @@ tasks.withType<KotlinCompile> {
 **Note**: Please note that the current version of Reflekt and SmartReflekt does not support incremental
 compilation process
 
-This gives you access to [the limited  Reflekt DSL](./reflekt-dsl/src/main/kotlin/io/reflekt/Reflekt.kt)
+This gives you access to [the limited  Reflekt DSL](./reflekt-dsl/src/main/kotlin/org/jetbrains/reflekt/Reflekt.kt)
 interfaces.
 
 This gives you access
-to [the extended SmartReflekt DSL](./reflekt-dsl/src/main/kotlin/io/reflekt/SmartReflekt.kt), which allow
+to [the extended SmartReflekt DSL](./reflekt-dsl/src/main/kotlin/org/jetbrains/reflekt/SmartReflekt.kt), which allow
 filtering classes/objects\functions by user condition.
 
 Now you can use the Reflekt plugin to find objects, classes, and functions in your project:
@@ -179,27 +179,15 @@ You can use `any` unpublished Reflekt version. You should do the following steps
 
 - Clone the Reflekt project (the official repo, any fork, branch, etc.).
 - Build the project `./gradlew build`
-- Publish the project to maven local `./gradlew publishToMavenLocal`
-- Add `mavenLocal()` in the repositories section in the `build.gradle.kts` file in your project:
-
-```kotlin
-repositories {
-    mavenLocal()
-}
-```
-
-Please note that if you build a Reflekt version with a customized
-[version](https://github.com/JetBrains-Research/reflekt/blob/master/build.gradle.kts#L4) number,
-write this version in the plugins and dependencies sections.
 
 ## Supported features
 
-- [x] Compile-time reflection by [Reflekt DSL](./reflekt-dsl/src/main/kotlin/io/reflekt/Reflekt.kt)
+- [x] Compile-time reflection by [Reflekt DSL](./reflekt-dsl/src/main/kotlin/org/jetbrains/reflekt/Reflekt.kt)
   for `multi-module` projects:
     - [x] project's files
     - [x] external libraries
 - [x] Compile-time reflection by custom users' filters for `multi-module` projects
-  by [SmartReflekt DSL](./reflekt-dsl/src/main/kotlin/io/reflekt/SmartReflekt.kt)
+  by [SmartReflekt DSL](./reflekt-dsl/src/main/kotlin/org/jetbrains/reflekt/SmartReflekt.kt)
     - [x] project's files
     - [ ] external libraries
 - [x] Bytecode generation -> IR generation
@@ -216,13 +204,13 @@ example in the [examples folder](./examples)._
 Any explanation becomes much better with a proper example.
 
 In the repository's [examples folder](./examples), you can find an example project that uses the
-Reflekt plugin by [Reflekt DSL](./reflekt-dsl/src/main/kotlin/io/reflekt/Reflekt.kt)
-and by [SmartReflekt DSL](./reflekt-dsl/src/main/kotlin/io/reflekt/SmartReflekt.kt).
+Reflekt plugin by [Reflekt DSL](./reflekt-dsl/src/main/kotlin/org/jetbrains/reflekt/Reflekt.kt)
+and by [SmartReflekt DSL](./reflekt-dsl/src/main/kotlin/org/jetbrains/reflekt/SmartReflekt.kt).
 
 You can also find many examples of searching algorithm work in the [test](./reflekt-plugin/src/test)
 folder.
 
-By default the examples project uses Reflekt from the local maven repository. 
+By default, the examples project uses Reflekt from the local maven repository. 
 If you would like to use a released version, please, 
 uncomment the corresponding lines in the `setting.gradle.kts` and `build.gradle.kts` files in the examples project.
 
@@ -237,4 +225,3 @@ repository [issues](https://github.com/JetBrains-Research/reflekt/issues).
 ## Contribution
 
 Please be sure to review project's [contributing guidelines](./docs/contributing.md) to learn how to help the project.
-

@@ -1,25 +1,26 @@
 package org.jetbrains.reflekt.plugin.analysis
 
-import org.jetbrains.reflekt.util.file.getAllNestedFiles
+import java.io.File
 import org.jetbrains.reflekt.plugin.analysis.AnalysisUtil.getReflektAnalyzer
 import org.jetbrains.reflekt.plugin.util.MavenLocalUtil.getReflektProjectJars
 import org.jetbrains.reflekt.plugin.util.Util.getResourcesRootPath
+import org.jetbrains.reflekt.util.file.getAllNestedFiles
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import java.io.File
 
 class AnalysisTest {
     @Tag("analysis")
     @MethodSource("data")
-    @ParameterizedTest(name = "test {index}")
+    @ParameterizedTest(name = "[{index}] {3}")
     fun `project analyzer test`(
         sources: Set<File>,
         expectedInvokes: String,
         expectedUses: String,
-        directory: String) {
+        directory: String
+    ) {
         val reflektClassPath = getReflektProjectJars()
         val analyzer = getReflektAnalyzer(classPath = reflektClassPath, sources = sources)
         val actualInvokes = analyzer.invokes()

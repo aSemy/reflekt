@@ -1,19 +1,21 @@
 package org.jetbrains.reflekt.plugin.ic
 
-import org.jetbrains.reflekt.util.file.getAllNestedFiles
+import java.io.File
+import java.io.IOException
+import kotlin.io.path.createTempDirectory
+import org.gradle.internal.impldep.org.apache.commons.lang.SystemUtils
 import org.jetbrains.kotlin.cli.common.arguments.parseCommandLineArguments
 import org.jetbrains.reflekt.plugin.analysis.getTestsDirectories
 import org.jetbrains.reflekt.plugin.ic.modification.Modification
 import org.jetbrains.reflekt.plugin.ic.modification.applyModifications
 import org.jetbrains.reflekt.plugin.util.Util
 import org.jetbrains.reflekt.plugin.util.Util.clear
-import org.jetbrains.reflekt.plugin.util.Util.getTempPath
+import org.jetbrains.reflekt.util.file.getAllNestedFiles
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import java.io.File
 
 class IncrementalCompilationTest {
     // File with compiler arguments (see K2JVMCompilerArguments)
@@ -36,7 +38,7 @@ class IncrementalCompilationTest {
 
     @Tag("ic")
     @MethodSource("data")
-    @ParameterizedTest(name = "test {index}")
+    @ParameterizedTest(name = "[{index}] expected: {2}")
     fun incrementalCompilationBaseTest(sourcesPath: File, modifications: List<Modification>, expectedResult: String?) {
         val testRoot = initTestRoot()
         val srcDir = File(testRoot, "src").apply { mkdirs() }
@@ -45,9 +47,8 @@ class IncrementalCompilationTest {
         val srcRoots = listOf(srcDir)
 
         sourcesPath.copyRecursively(srcDir, overwrite = true)
-        val testDataPath = File(Util.getResourcesRootPath(IncrementalCompilationTest::class))
-        val pathToDownloadKotlinSources = File(testDataPath.parent, "kotlinSources").apply { mkdirs() }
-        val compilerArgs = createCompilerArguments(outDir, srcDir, pathToDownloadKotlinSources).apply {
+
+        val compilerArgs = createCompilerArguments(outDir, srcDir).apply {
             parseCommandLineArguments(parseAdditionalCompilerArgs(srcDir, argumentsFileName), this)
         }
         compileSources(cacheDir, srcRoots, compilerArgs, "Initial")
@@ -83,12 +84,8 @@ class IncrementalCompilationTest {
     }
 
     // If we had failed tests the previous results were not deleted and it can throw some compiler errors
-    private fun initTestRoot(): File {
-        val testRoot = File(getTempPath(), IncrementalCompilationTest::class.java.simpleName)
-        if (testRoot.exists()) {
-            testRoot.deleteRecursively()
-        }
-        testRoot.apply { mkdirs() }
-        return testRoot
-    }
+    private fun initTestRoot(): File =
+        createTempDirectory(IncrementalCompilationTest::class.java.simpleName)
+            .toFile()
+            .also { it.deleteOnExit() }
 }
